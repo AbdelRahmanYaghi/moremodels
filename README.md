@@ -3,6 +3,8 @@ A python library allowing you to use multiple models using the weight of each mo
 
 Example code:
 
+```
+from weightedmodels import WeightedModels
 
 model1 = catboost.CatBoostRegressor()
 model2 = RandomForestRegressor()
@@ -21,3 +23,4 @@ print(models.getModelWeights())
 myPredictedData = models.predict(test)
 
 
+```
