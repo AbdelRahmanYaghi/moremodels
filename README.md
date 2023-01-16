@@ -1,32 +1,41 @@
-# WeightedModels
+# MoreModels
+
+A python library allowing you to use multiple models using the weight of each model based on their performance
 
 install using 
 ```
-pip install weightedmodels
+pip install moremodels
 ```
-
-A python library allowing you to use multiple models using the weight of each model based on their performance
 
 Example code:
 
 ```
-from weightedmodels import WeightedModels
+from moremodels import WeightedModel
 
 model1 = catboost.CatBoostRegressor()
 model2 = RandomForestRegressor()
 model3 = xgboost.XGBRegressor()
 
-my_data = pd.read('my_data.csv')
-test = pd.read('test.csv)
+models = [model1, model2, model3]
 
-my_models = [model1, model2, model3]
-models = WeightedModels( models = my_models, trainSplit = 0.8, randomState = 696969 )
+X = pd.read('X.csv')
+y = pd.read('y.csv')
 
-models.fit(my_data)
+Xtest = pd.read('Xtest.csv)
 
-print(models.getModelWeights())
+model = WeightedModel(models, trainSplit = 0.85, randomState = 42, error = None)
+# error parameter is used to pass on a function to calculate the error by. Which effects the weights of the models
 
-myPredictedData = models.predict(test)
+model.fit(X, y, showScores = True)
+# showScore allows the model to print the weighted model's score after fitting using the training and getting the weights
 
+model.getModelWeights()
 
+model.predict(Xtest)
+
+weights = [100, 40, 260]
+
+setModelWeights(weights, showScores = True, Silent = False)
+# Allows you to set you own weights, in case you want to do some experiments.
+# showScore allows the model to repredict and calculate the new predection based on your new weights. then proceeds by printing the new weighted model's score.  
 ```
