@@ -7,35 +7,67 @@ install using
 pip install moremodels
 ```
 
-Example code:
+Example code for WeightedModels Object:
 
 ```
-from moremodels import WeightedModel
+from moremodels import WeightedModels
 
 model1 = catboost.CatBoostRegressor()
 model2 = RandomForestRegressor()
 model3 = xgboost.XGBRegressor()
 
-models = [model1, model2, model3]
+my_data = pd.read('my_data.csv')
+test = pd.read('test.csv)
 
-X = pd.read('X.csv')
-y = pd.read('y.csv')
+my_models = [model1, model2, model3]
+models = WeightedModels( models = my_models, trainSplit = 0.8, randomState = 696969 )
 
-Xtest = pd.read('Xtest.csv)
+models.fit(my_data, 'self') # 'self' here means that the validation dataset will be used from the internal split in the class 
 
-model = WeightedModel(models, trainSplit = 0.85, randomState = 42, error = None)
-# error parameter is used to pass on a function to calculate the error by. Which effects the weights of the models
+print(models.modelWeights)
 
-model.fit(X, y, showScores = True)
-# showScore allows the model to print the weighted model's score after fitting using the training and getting the weights
+myPredictedData = models.predict(test)
 
-model.getModelWeights()
+print(models.models[0])
 
-model.predict(Xtest)
+```
 
-weights = [100, 40, 260]
 
-setModelWeights(weights, showScores = True, Silent = False)
-# Allows you to set you own weights, in case you want to do some experiments.
-# showScore allows the model to repredict and calculate the new predection based on your new weights. then proceeds by printing the new weighted model's score.  
+Example code for UniqueWeightedModels Object:
+
+```
+from moremodels import UniqueWeightedModels
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.metrics import mean_squared_error
+
+model1 = catboost.CatBoostRegressor()
+model2 = RandomForestRegressor()
+model3 = xgboost.XGBRegressor()
+
+# Assume that you have applied 3 different feature engineering methods on the same dataset and ended up with:
+
+X1, y = load_iris(return_X_y=True)
+
+X2, y = load_iris(return_X_y=True)
+
+X3, y = load_iris(return_X_y=True)
+
+# Note: It is assumed that y would always be the same, since it's the target, so, applying operation on the target is not reccomended.
+
+my_models = [model1, model2, model3]
+
+models = WeightedModels( models = my_models, trainSplit = [0.8, 0.6, 0.75], randomState = 696969, error = mean_squared_error) 
+# In the line above, since only one random state was passed, then it's assumed for all models. Same goes for error.
+# Meaning that, you could pass [mean_squared_error, mean_squared_error, mean_squared_error] and it would be the same output.
+
+models.fit([X1, X2, X3], y, 'self') 
+# 'self' here means that the validation dataset will be used from the internal split in the class, and since its the only input, then its ['self', 'self', 'self'] 
+# You could also pass more than one validation dataset, such that [[val_x1, val_y1], 'self', [val_x3, val_y3]]
+# It is assumed that y will always be the same. Maybe, I'll change that in later updates.
+
+print(models.modelWeights)
+
+myPredictedData = models.predict([X_test1, X_test2, X_test3])
+
 ```
